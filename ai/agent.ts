@@ -13,10 +13,12 @@ const JsonRPCResponse = z.object({
 
 type response_type = z.infer<typeof JsonRPCResponse>;
 
-async function invokeAgent(
-  input: string,
-  system_data?: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+export async function invokeAgent(
+  chat_history: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
 ): Promise<response_type | undefined> {
+  if (chat_history.length === 0) {
+    throw Error("NoChat", { cause: "No chat history provided." });
+  }
   try {
     const inputMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
       [
@@ -24,11 +26,7 @@ async function invokeAgent(
           role: "system",
           content: AGENT_PROMPT,
         },
-        ...(system_data ?? []),
-        {
-          role: "user",
-          content: input,
-        },
+        ...chat_history,
       ];
 
     const responseMessage = await useLLM<response_type>(
@@ -47,25 +45,4 @@ async function invokeAgent(
   } catch (error) {
     console.error("Error invoking agent:", error);
   }
-}
-
-const response = await invokeAgent(
-  "Make a list of apples, bananas, and oranges.",
-  [
-    { role: "user", content: "create a note" },
-    { role: "assistant", content: "Please provide the content for the note" },
-  ]
-);
-
-if (response) {
-  console.log("Response received:", response);
-  if (response.method === "create_note") {
-    console.log(
-      "Creating a note with the name:",
-      JSON.parse(response.payload).name
-    );
-    console.log("and content:", JSON.parse(response.payload).content);
-  }
-} else {
-  console.error("No valid response received.");
 }

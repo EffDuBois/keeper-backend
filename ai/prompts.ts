@@ -5,7 +5,7 @@ You'll receive the whole chat history as input, and you need to return the actio
 
 ### action_instruction_map
 - create_note: 
-  1. Create a new note with the contents provided.
+  1. Create a new note in markdown syntax using the provided content
   2. If the user hasn't provided any content, ask for it.
 - open_note: Open an existing note.
 - ask_clarify: Ask for further clarification regarding the user's request.
