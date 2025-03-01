@@ -32,12 +32,12 @@ export function getLLM(model: SupportedModel = "gemini-1.5-flash"): OpenAI {
   return new OpenAI(clientConfig);
 }
 
-export async function useLLM(
+export async function useLLM<T>(
   messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
   model: SupportedModel = "gemini-1.5-flash",
   n: number = 1,
-  response_format?: any
-) {
+  response_format?: any,
+): Promise<T> {
   const client = getLLM(model);
 
   try {
@@ -47,7 +47,7 @@ export async function useLLM(
       messages,
       response_format,
     });
-    return chatCompletion.choices[0].message;
+    return chatCompletion.choices[0].message.parsed as T;
   } catch (error) {
     console.error("Error using LLM:", error);
     throw error;
